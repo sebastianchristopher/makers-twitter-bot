@@ -58,7 +58,7 @@ class TwitterBot
 
    def all_tweets_with_hashtag(hashtag)
      # tweets with #mackersacademy (-rt part of twitter's search to remove retweets)
-     @twitter_client.search("##{hashtag} -rt", tweet_mode: "extended", count: 10, result_type: 'mixed', lang: 'en')
+     @twitter_client.search("##{hashtag} -rt", count: 10, result_type: 'mixed', lang: 'en') # tweet_mode: "extended" # returns untruncated text when .attrs[:full_text] used, but resulting text is too long for a text
      # another way to remove retweets, using the Ruby twitter api
      # tweets = hashtag_makersacademy.select { |tweet| !tweet.retweeted_tweet? }
    end
@@ -68,9 +68,11 @@ class TwitterBot
     list_of_tweets = []
     tweets.each{ |tweet|
       list_of_tweets << {
-      tweet: tweet.attrs[:full_text],
+      # tweet: tweet.attrs[:full_text], # : Unable to create record (Twilio::REST::RestError) # The concatenated message body exceeds the 1600 character limit. # https://www.twilio.com/docs/errors/21617
+      tweet: tweet.full_text,
       user: tweet.user.screen_name,
-      created: tweet.created_at
+      created: tweet.created_at,
+      url: tweet.uri
       }
     }
     list_of_tweets
@@ -80,7 +82,7 @@ class TwitterBot
     tweets = organize_tweets
     formatted_tweets = []
     tweets.each { |tweet|
-      formatted_tweets << "posted by #{tweet[:user]} on #{tweet[:created]}: #{tweet[:tweet]}"
+      formatted_tweets << "posted by #{tweet[:user]} on #{tweet[:created]}: #{tweet[:tweet]} \nlink: #{tweet[:url]}"
     }
     formatted_tweets
   end
