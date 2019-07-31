@@ -58,7 +58,7 @@ class TwitterBot
 
    def all_tweets_with_hashtag(hashtag)
      # tweets with #mackersacademy (-rt part of twitter's search to remove retweets)
-     @twitter_client.search("##{hashtag} -rt", count: 20, result_type: 'mixed', lang: 'en')
+     @twitter_client.search("##{hashtag} -rt", tweet_mode: "extended", count: 10, result_type: 'mixed', lang: 'en')
      # another way to remove retweets, using the Ruby twitter api
      # tweets = hashtag_makersacademy.select { |tweet| !tweet.retweeted_tweet? }
    end
@@ -68,7 +68,7 @@ class TwitterBot
     list_of_tweets = []
     tweets.each{ |tweet|
       list_of_tweets << {
-      tweet: tweet.full_text,
+      tweet: tweet.attrs[:full_text],
       user: tweet.user.screen_name,
       created: tweet.created_at
       }
