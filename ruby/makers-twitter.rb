@@ -33,31 +33,37 @@ class TwitterBot
       )
   end
 
+  # def print_tweets
+  #   all_tweets_with_hashtag("makersacademy").each { |tweet| puts tweet.full_text }
+  # end
+
   def send_text(to = '+447795537261‬',from = '+441827232034')
-    message = latest_tweet
+    message = format_tweets
+    # puts "#makersacademy was tagged in the following tweets:\n\n#{message.join("\n\n")}"
+    # return
     @twilio_client.api.account.messages.create(
       to: to,
       from: from,
-      body: "#makersacademy was tagged in a tweet:\n\n#{message}"
+      body: "#makersacademy was tagged in the following tweets:\n\n#{message.join("\n\n")}"
      )
    end
 
-   def daily_update
-     write_file
-     tweets = format_tweets
-     tweets
-   end
+   # def daily_update
+   #   write_file
+   #   tweets = format_tweets
+   #   tweets
+   # end
 
    private
 
    def all_tweets_with_hashtag(hashtag)
-# tweets with #mackersacademy (-rt part of twitter's search to remove retweets)
-     @twitter_client.search("##{hashtag} -rt", count: 100, lang: 'en')
+     # tweets with #mackersacademy (-rt part of twitter's search to remove retweets)
+     @twitter_client.search("##{hashtag} -rt", count: 20, result_type: 'mixed', lang: 'en')
+     # another way to remove retweets, using the Ruby twitter api
+     # tweets = hashtag_makersacademy.select { |tweet| !tweet.retweeted_tweet? }
    end
-# another way to remove retweets, using the Ruby twitter api
-# tweets = hashtag_makersacademy.select { |tweet| !tweet.retweeted_tweet? }
 
-  def tweets_organised
+  def organize_tweets
     tweets = all_tweets_with_hashtag("makersacademy")
     list_of_tweets = []
     tweets.each{ |tweet|
@@ -70,26 +76,27 @@ class TwitterBot
     list_of_tweets
   end
 
-  def latest_tweet
-    tweets = tweets_organised
-    "posted by #{tweets.first[:user]} on #{tweets.first[:created]}\n\n#{tweets.first[:tweet]}"
+  def format_tweets
+    tweets = organize_tweets
+    formatted_tweets = []
+    tweets.each { |tweet|
+      formatted_tweets << "posted by #{tweet[:user]} on #{tweet[:created]}: #{tweet[:tweet]}"
+    }
+    formatted_tweets
   end
 
   def write_file
-    File.write('tweets.yml', YAML.dump(tweets_organised))
+    File.write('tweets.yml', YAML.dump(organize_tweets))
   end
 
   def load_file
     YAML.load_file('tweets.yml')
   end
-
-  def format_tweets
-    tweets = load_file
-    formatted_tweets = []
-    tweets.each { |tweet|
-      formatted_tweets << "posted by #{tweets.first[:user]} on #{tweets.first[:created]}\n#{tweets.first[:tweet]}\n"
-    }
-  end
 end
+
 # in pry, ls Twitter::Tweets will list the methods for Tweet class
-binding.pry
+# binding.pry
+
+bot = TwitterBot.new
+# bot.print_tweets
+bot.send_text
