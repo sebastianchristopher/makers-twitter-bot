@@ -100,5 +100,4 @@ end
 # binding.pry
 
 bot = TwitterBot.new
-# bot.print_tweets
 bot.send_text
