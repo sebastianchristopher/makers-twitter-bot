@@ -33,6 +33,10 @@ class TwitterBot
       )
   end
 
+  def sid
+    ENV["TWILIO_ACCOUNT_SID"]
+  end
+
   # def print_tweets
   #   all_tweets_with_hashtag("makersacademy").each { |tweet| puts tweet.full_text }
   # end
@@ -100,4 +104,5 @@ end
 # binding.pry
 
 bot = TwitterBot.new
-bot.send_text
+# bot.send_text
+puts bot.sid
